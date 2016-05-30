@@ -1,0 +1,15 @@
+spring:
+    data:
+        mongodb:
+            host: 192.168.99.100
+            port: 27017
+            databaseName: testApp
+        solr:
+          host: http://192.168.99.100:8983/solr
+        elasticsearch:
+          cluster-nodes: 192.168.99.100:9300
+
+proxy:
+    useProxy: false
+    ip:
+    port:

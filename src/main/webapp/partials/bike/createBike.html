@@ -1,0 +1,40 @@
+<div class="container">
+    <ol class="breadcrumb">
+        <li><a href="#">home</a></li>
+        <li><a href="#/bike/list">Bikes list</a></li>
+        <li class="active">Create bike</li>
+    </ol>
+    <div class="tabs-container row">
+        <form class="form-horizontal" name="createBikeForm" ng-submit="createBikeFct()">
+            <div class="form-group">
+                <label class="control-label col-sm-2">Name</label>
+                <div class="col-sm-6">
+                    <input type="text" class="form-control" placeholder="Enter name" ng-model="createBike.name">
+                </div>
+            </div>
+            <div class="form-group">
+                <label class="control-label col-sm-2">Color</label>
+                <div class="col-sm-6">
+                    <input type="text" class="form-control" placeholder="Enter color" ng-model="createBike.color">
+                </div>
+            </div>
+            <div class="form-group">
+                <label class="control-label col-sm-2">Price</label>
+                <div class="col-sm-6">
+                    <input type="number" step="0.5" class="form-control" placeholder="Enter price" ng-model="createBike.price" ng-required="true">
+                </div>
+            </div>
+            <div class="form-group">
+                <label class="control-label col-sm-2">Max speed</label>
+                <div class="col-sm-6">
+                    <input type="number" step="0.5" class="form-control" placeholder="Enter max speed" ng-model="createBike.maxSpeed" ng-required="true">
+                </div>
+            </div>
+
+            <div class="text-center">
+                <button type="submit" class="btn btn-testApp" ng-disabled="createBikeForm.$invalid">Save</button>
+            </div>
+        </form>
+    </div>
+</div>
+

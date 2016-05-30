@@ -1,0 +1,144 @@
+buildscript {
+    repositories {
+        mavenCentral()
+    }
+    dependencies {
+        classpath("org.springframework.boot:spring-boot-gradle-plugin:1.3.1.RELEASE")
+    }
+}
+
+group 'com.tkerambloch.github'
+version '0.1-SNAPSHOT'
+
+apply plugin: 'java'
+apply plugin: 'maven'
+apply plugin: 'idea'
+apply plugin: 'spring-boot'
+
+sourceCompatibility = 1.8
+targetCompatibility = 1.8
+
+repositories {
+    mavenCentral()
+}
+
+jar.into('static') {
+    from('src/main/webapp')
+}
+
+sourceSets {
+    main {
+        java {
+            'src/main/generated'
+        }
+    }
+    generated {
+        java {
+            srcDirs = ['src/main/generated']
+        }
+    }
+}
+
+configurations {
+    providedRuntime
+}
+
+configurations {
+    querydslapt
+}
+
+dependencies {
+    // DROPWIZARD METRICS
+    compile group: 'io.dropwizard.metrics', name: 'metrics-core', version: dropwizard_metrics_version
+    compile group: 'io.dropwizard.metrics', name: 'metrics-graphite', version: dropwizard_metrics_version
+    compile group: 'io.dropwizard.metrics', name: 'metrics-healthchecks', version: dropwizard_metrics_version
+    compile group: 'io.dropwizard.metrics', name: 'metrics-jvm', version: dropwizard_metrics_version
+    compile group: 'io.dropwizard.metrics', name: 'metrics-servlet', version: dropwizard_metrics_version
+    compile group: 'io.dropwizard.metrics', name: 'metrics-json', version: dropwizard_metrics_version
+    compile (group: 'io.dropwizard.metrics', name: 'metrics-servlets', version: dropwizard_metrics_version) {
+        exclude(module: 'metrics-healthchecks')
+    }
+    compile (group: 'com.ryantenney.metrics', name: 'metrics-spring', version: metrics_spring_version) {
+        exclude(module: 'metrics-core')
+        exclude(module: 'metrics-healthchecks')
+    }
+
+    // SPRING BOOT
+    compile group: 'org.springframework.boot', name: 'spring-boot-starter-web'
+    compile group: 'org.springframework.boot', name: 'spring-boot-autoconfigure'
+    compile group: 'org.springframework.boot', name: 'spring-boot-starter-security'
+    //compile group: 'org.springframework.boot', name: 'spring-boot-starter-data-jpa'
+
+    //AOP
+    compile group: 'org.springframework.boot', name: 'spring-boot-starter-aop'
+
+    //COMMONS
+    compile group: 'javax.inject', name: 'javax.inject', version: javax_inject_version
+    compile 'com.google.guava:guava:18.0'
+
+    //JACKSON DEPENDENCIES
+    compile group: 'com.fasterxml.jackson.datatype', name: 'jackson-datatype-json-org', version: jackson_version
+    compile group: 'com.fasterxml.jackson.datatype', name: 'jackson-datatype-hppc', version: jackson_version
+    compile group: 'com.fasterxml.jackson.datatype', name: 'jackson-datatype-jsr310', version: jackson_version
+    //compile group: 'com.fasterxml.jackson.datatype', name: 'jackson-datatype-hibernate4', version: jackson_version
+    compile group: 'com.fasterxml.jackson.core', name: 'jackson-annotations', version: jackson_version
+    compile group: 'com.fasterxml.jackson.core', name: 'jackson-databind', version: jackson_version
+
+    //SWAGGER DOCUMENTATION
+    compile(group: 'io.springfox', name: 'springfox-swagger2', version: springfox_version){
+        exclude module: 'mapstruct'
+    }
+
+    //MONGODB
+    compile("org.springframework.boot:spring-boot-starter-data-mongodb")
+    compile group: 'org.mongeez', name: 'mongeez', version: mongeez_version
+
+    //QUERY DSL
+    compile group: 'com.mysema.querydsl', name: 'querydsl-mongodb', version:querydsl_version
+    querydslapt group: 'com.mysema.querydsl', name: 'querydsl-apt', version:querydsl_version
+
+    //SOLR
+    compile group: 'org.springframework.data', name: 'spring-data-solr', version: '1.5.4.RELEASE'
+
+    //ELASTICSEARCH
+    compile (group: 'org.springframework.boot', name: 'spring-boot-starter-data-elasticsearch') {
+        exclude(module: 'elasticsearch')
+    }
+    compile group: 'org.elasticsearch', name: 'elasticsearch', version: '1.7.2'
+
+    //Test
+    testCompile group: 'junit', name: 'junit', version: '4.11'
+    testCompile group: 'org.springframework.boot', name: 'spring-boot-starter-test'
+    testCompile group: 'org.springframework.boot', name: 'spring-boot-starter-jetty'
+
+}
+
+task generateQueryDSL(type: JavaCompile, group: 'build', description: 'Generates the QueryDSL query types') {
+    source = sourceSets.main.java
+    classpath = configurations.compile + configurations.querydslapt + configurations.providedRuntime
+    options.compilerArgs = [
+            "-proc:only",
+            "-processor", "org.springframework.data.mongodb.repository.support.MongoAnnotationProcessor"
+    ]
+    destinationDir = sourceSets.generated.java.srcDirs.iterator().next()
+}
+
+compileJava {
+    dependsOn generateQueryDSL
+    source generateQueryDSL.destinationDir
+    classpath += configurations.providedRuntime
+}
+
+compileGeneratedJava {
+    dependsOn generateQueryDSL
+    options.warnings = false
+    classpath += sourceSets.main.runtimeClasspath
+}
+
+clean {
+    delete sourceSets.generated.java.srcDirs
+}
+
+task wrapper(type: Wrapper) {
+    gradleVersion = '2.5'
+}

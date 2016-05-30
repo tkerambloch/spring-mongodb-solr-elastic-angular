@@ -1,0 +1,28 @@
+test-elasticsearch:
+    container_name: test-elasticsearch
+    image: elasticsearch:1.7.5
+    ports:
+        - "9200:9200"
+        - "9300:9300"
+test-logstash:
+    container_name: test-logstash
+    image: logstash:2.2
+    volumes:
+        - ./logstash:/config-dir
+    links:
+        - test-elasticsearch:test-elasticsearch
+#    command: bash -c "plugin install logstash-input-jdbc && curl -X DELETE 'http://192.168.99.100:9200/members*' && logstash -f /config-dir/member.config"
+mongodb:
+    container_name: mongodb
+    image: mongo:3.2.3
+    ports:
+        - "27017:27017"
+    volumes:
+        - ./mongodb:/mongodb
+solr:
+    container_name: test-solr
+    image: test/solr
+    ports:
+      - "8983:8983"
+    volumes:
+      - ./solr/share:/solr/share

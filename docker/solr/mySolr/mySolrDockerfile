@@ -1,0 +1,13 @@
+FROM solr:5.5.0
+
+RUN bin/solr start && \
+    bin/solr create -c testCore && \
+    bin/solr stop
+
+#COPY ./solr/mySolr/testCore/conf/* /opt/solr/server/solr/testCore/conf/
+
+RUN bin/solr start && \
+#    curl -X POST 'http://127.0.0.1:8983/solr/testCore/dataimport?command=full-import&clean=true&commit=true&wt=json&indent=true&entity=test&verbose=false&optimize=false&debug=false' && \
+    bin/solr stop
+
+CMD ["/opt/solr/bin/solr", "-f"]

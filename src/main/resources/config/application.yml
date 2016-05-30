@@ -1,0 +1,6 @@
+mongeez:
+    masterFile: /mongeez/master.xml
+
+multipart:
+    maxFileSize: 5000MB
+    maxRequestSize: 5000MB
